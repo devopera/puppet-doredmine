@@ -18,10 +18,13 @@ define doredmine::base (
   $install_crontabs = false,
   $install_databases = false,
   $install_filesets = false,
-  $byrepo_hosts = {},
-  $byrepo_vhosts = {},
-  $byrepo_crontabs = {},
-  $byrepo_databases = {},
+  
+  # repo searched for hosts/vhosts/crontabs/databases
+  # harmless for svn.redmine.org usage and necessary for non-usage
+  $byrepo_hosts = undef,
+  $byrepo_vhosts = undef,
+  $byrepo_crontabs = undef,
+  $byrepo_databases = undef,
   # undef means use defaults
   $byrepo_filewriteable = undef,
   
@@ -119,6 +122,9 @@ define doredmine::base (
     byrepo_crontabs => $byrepo_crontabs,
     byrepo_databases => $byrepo_databases,
     byrepo_filewriteable => $real_byrepo_filewriteable,
+    install_crontabs => $install_crontabs,
+    install_databases => $install_databases,
+    install_filesets => $install_filesets,
     # stickydir may not be in this manifest, so require the file (directory) it creates
     # require => Docommon::Stickydir["doredmine-webroot-${title}"],
     require => File["${repo_path}"],
@@ -133,7 +139,7 @@ define doredmine::base (
       grant    => $db_grants,
     }
     # create a database.yml config file
-    file { "doredmine-base-config--${title}" :
+    file { "doredmine-base-config-${title}" :
       ensure => 'present',
       path => "${repo_path}/${appname}${app_subpath}/config/database.yml",
       owner => $user,
@@ -144,12 +150,11 @@ define doredmine::base (
     }
   }
 
-  # fetch redmine gems
+  # fetch redmine gems as root
   exec { "doredmine-base-install-bundle-${title}" :
     path => '/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin',
     command => "bash -c \"export HOME='/home/${user}/'; bundle install --quiet --without development test\"",
-    user => $user,
-    group => $group,
+    user => 'root',
     timeout => 1800,
     cwd => "${repo_path}/${appname}${app_subpath}",
     require => [Dorepos::Installapp["${appname}"]],
