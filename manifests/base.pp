@@ -83,11 +83,12 @@ define doredmine::base (
       user => $::apache::params::user,
       context => 'httpd_log_t',
     },
-    "doredmine-base-systmp-${title}" => {
-      filename => "/tmp/${appname}/",
-      user => $::apache::params::user,
-      context => 'httpd_tmpfs_t',
-    },
+    # tmp dir setup and contextualised by init.pp
+    # "doredmine-base-systmp-${title}" => {
+    #   filename => "${tmp_dir}/${appname}/",
+    #   user => $::apache::params::user,
+    #   context => 'httpd_tmpfs_t',
+    # },
     "doredmine-base-tmp-${title}" => {
       filename => "${repo_path}/${appname}${app_subpath}/tmp",
       user => $::apache::params::user,
