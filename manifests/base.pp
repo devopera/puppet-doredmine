@@ -7,6 +7,7 @@ define doredmine::base (
   $appname = $title,
   $user = 'web',
   $group = 'www-data',
+  $ruby_version = 'ruby-1.9',
 
   # similar to installapp for easy cross-over
   $repo_path = '/var/www/svn/svn.redmine.org',
@@ -154,8 +155,9 @@ define doredmine::base (
   # fetch redmine gems as root
   exec { "doredmine-base-install-bundle-${title}" :
     path => '/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin',
-    command => "bash -c \"export HOME='/home/${user}/'; bundle install --quiet --without development test\"",
-    user => 'root',
+    # rvm doesn't like it, but rvm_system_ruby means we do all rubies and gems as root
+    command     => "rvm ${ruby_version} exec bundle install --quiet --without development test",
+    environment => [ 'HOME=/root', ],
     timeout => 1800,
     cwd => "${repo_path}/${appname}${app_subpath}",
     require => [Dorepos::Installapp["${appname}"]],
