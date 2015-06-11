@@ -154,7 +154,7 @@ define doredmine::base (
 
   # fetch redmine gems as root
   exec { "doredmine-base-install-bundle-${title}" :
-    path => '/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin',
+    path => '/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/rvm/bin',
     # rvm doesn't like it, but rvm_system_ruby means we do all rubies and gems as root
     command     => "rvm ${ruby_version} exec bundle install --quiet --without development test",
     environment => [ 'HOME=/root', ],
